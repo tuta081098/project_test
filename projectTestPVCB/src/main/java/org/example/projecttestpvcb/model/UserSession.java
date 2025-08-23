@@ -1,29 +1,37 @@
 package org.example.projecttestpvcb.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserSession {
     private String username;
     private Role role;
-    private boolean expired;
+    private Instant expiry;
+    private int winCount = 0;
 
-    public UserSession(String username, Role role, boolean expired) {
+    public UserSession(String username, Role role, boolean dummy) {
         this.username = username;
         this.role = role;
-        this.expired = expired;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public Role getRole() {
-        return role;
+        this.expiry = Instant.now().plusSeconds(3600); // mặc định hết hạn sau 1h
     }
 
     public boolean isExpired() {
-        return expired;
+        return Instant.now().isAfter(expiry);
     }
 
-    public void setExpired(boolean expired) {
-        this.expired = expired;
+    public void increaseWinCount() {
+        this.winCount++;
+    }
+
+    public void decreaseWinCount() {
+        if (this.winCount > 0) {
+            this.winCount--;
+        }
     }
 }
