@@ -21,26 +21,27 @@ public class UserController {
 
     private UserSession requireUser(String token) {
         UserSession session = TokenStore.get(token);
-        if (session == null || session.isExpired()) {
-            throw new RuntimeException("Lỗi token");
-        }
-        if (session.getRole() != Role.USER) {
-            throw new RuntimeException("Lỗi quyền");
+        if (session == null || session.isExpired() || session.getRole() != Role.USER) {
+            session = null;
         }
         return session;
     }
 
     @PostMapping("/spin")
     public ResponseEntity<?> spin(@RequestHeader("X-Auth-Token") String token) {
+        Map<String, Object> res = new HashMap<>();
         UserSession session = requireUser(token);
+        if (session == null){
+            res.put("Error", "Tài khoản không có quyền, vui lòng kiểm tra lại");
+            return ResponseEntity.ok(res);
+        }
         boolean win = random.nextBoolean();
 
         if (win) {
             session.increaseWinCount();
-        } else {
         }
 
-        Map<String, Object> res = new HashMap<>();
+        
         res.put("username", session.getUsername());
         res.put("win", win);
         res.put("availableClaims", session.getWinCount());
